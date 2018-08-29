@@ -17,6 +17,8 @@ public:
 		assert(imageData != nullptr);
 		return imageData; 
 	};
+	unsigned int GetPixelDepth() { return header.imageSpecification.pixelDepth; };
+
 private:
 
 	struct Header
