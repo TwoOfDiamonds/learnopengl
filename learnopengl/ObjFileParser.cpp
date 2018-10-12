@@ -2,13 +2,16 @@
 
 #include <iostream>
 
-ObjFileParser::ObjFileParser(std::string filename)
+ObjFileParser::ObjFileParser(std::string filename) :
+	mRootNode(std::make_shared<SceneNode>())
 {
 	vertices.push_back(vec3{ 0.f, 0.f, 0.f });
 	texCoords.push_back(vec3{ 0.f, 0.f, 0.f });
 	vertexNormals.push_back(vec3{ 0.f, 0.f, 0.f });
 
 	std::ifstream file(filename);
+	assert(file.is_open());
+
 	std::string line;
 
 	while (!file.eof())
@@ -34,40 +37,36 @@ ObjFileParser::ObjFileParser(std::string filename)
 			vertexNormals.push_back(ParseVec3(line));
 		else if (token == "f")
 			ParseFace(line);
+		else if (token == "g")
+		{
+			if (mCurrentGeometry != nullptr)
+			{
+				mRootNode->AttachChild(std::make_shared<SceneNode>(std::move(mCurrentGeometry), mpActiveMTLFile->GetMaterial(mActiveMaterial)));
+			}
+
+			mCurrentGeometry = std::make_unique<Geometry>();
+			mCurrentGeometry->groupName = line;
+		}
+		else if (token == "mtllib")
+		{
+			if (mpActiveMTLFile == nullptr || (mpActiveMTLFile != nullptr && mpActiveMTLFile->GetName() != line))
+			{
+				mpActiveMTLFile = std::make_unique<MTLFile>(line);
+			}
+		}
+		else if (token == "usemtl")
+		{
+			//load material
+			mActiveMaterial = line;
+		}
 	}
 
-	float minx = vertices[1][0], miny = vertices[1][1], minz = vertices[1][2];
-	float maxx = vertices[1][0], maxy = vertices[1][1], maxz = vertices[1][2];
-
-	for (int i = 2; i < vertices.size(); i++)
+	if (mCurrentGeometry != nullptr)
 	{
-		if (minx > vertices[i][0])
-			minx = vertices[i][0];
-
-		if (miny > vertices[i][1])
-			miny = vertices[i][1];
-
-		if (minz > vertices[i][2])
-			minz = vertices[i][2];
-
-		if (maxx < vertices[i][0])
-			maxx = vertices[i][0];
-
-		if (maxy < vertices[i][1])
-			maxy = vertices[i][1];
-
-		if (maxz < vertices[i][2])
-			maxz = vertices[i][2];
+		mRootNode->AttachChild(std::make_shared<SceneNode>(std::move(mCurrentGeometry), mpActiveMTLFile->GetMaterial(mActiveMaterial)));
 	}
-
-	std::cout << "min " << minx << " " << miny << " " << minz << std::endl;
-	std::cout << "max " << maxx << " " << maxy << " " << maxz << std::endl;
 
 	file.close();
-}
-
-ObjFileParser::~ObjFileParser()
-{
 }
 
 ObjFileParser::vec3 ObjFileParser::ParseVec3(const std::string & line, float defaultValue)
@@ -123,17 +122,17 @@ void ObjFileParser::ParseFace(const std::string & line)
 				normalIndex = vertexNormals.size() + normalIndex;
 		}
 
-		faceStuff.push_back(vertices[vertexIndex][0]);
-		faceStuff.push_back(vertices[vertexIndex][1]);
-		faceStuff.push_back(vertices[vertexIndex][2]);
+		mCurrentGeometry->allVertices.push_back(vertices[vertexIndex][0]);
+		mCurrentGeometry->allVertices.push_back(vertices[vertexIndex][1]);
+		mCurrentGeometry->allVertices.push_back(vertices[vertexIndex][2]);
 
-		faceStuff.push_back(texCoords[textureCoordIndex][0]);
-		faceStuff.push_back(texCoords[textureCoordIndex][1]);
-		faceStuff.push_back(texCoords[textureCoordIndex][2]);
+		mCurrentGeometry->allVertices.push_back(texCoords[textureCoordIndex][0]);
+		mCurrentGeometry->allVertices.push_back(texCoords[textureCoordIndex][1]);
+		mCurrentGeometry->allVertices.push_back(texCoords[textureCoordIndex][2]);
 
-		faceStuff.push_back(vertexNormals[normalIndex][0]);
-		faceStuff.push_back(vertexNormals[normalIndex][1]);
-		faceStuff.push_back(vertexNormals[normalIndex][2]);
+		mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][0]);
+		mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][1]);
+		mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][2]);
 	}
 }
 

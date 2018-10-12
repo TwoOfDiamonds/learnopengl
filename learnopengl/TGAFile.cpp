@@ -1,11 +1,14 @@
 #include "TGAFile.h"
 
+#include <glad\glad.h>
 #include <vector>
 #include <iostream>
 
 TGAFile::TGAFile(std::string filename)
 {
 	std::ifstream file(filename, std::ifstream::binary);
+
+	assert(file.is_open());
 
 	if (file)
 	{
@@ -20,6 +23,17 @@ TGAFile::TGAFile(std::string filename)
 		file.read(imageData, imageSize);
 		file.close();
 	}
+
+	glGenTextures(1, &textureid);
+	glBindTexture(GL_TEXTURE_2D, textureid);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int format = GetPixelDepth() == 32 ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, GetWidth(), GetHeight(), 0, format, GL_UNSIGNED_BYTE, GetImageData());
 }
 
 

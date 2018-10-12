@@ -18,6 +18,7 @@ public:
 		return imageData; 
 	};
 	unsigned int GetPixelDepth() { return header.imageSpecification.pixelDepth; };
+	unsigned int GetTextureId() { return textureid; }
 
 private:
 
@@ -46,6 +47,7 @@ private:
 	} header;
 
 	char* imageData = nullptr;
+	unsigned int textureid;
 
 };
 
