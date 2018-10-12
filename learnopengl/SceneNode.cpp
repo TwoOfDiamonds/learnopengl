@@ -38,7 +38,7 @@ void SceneNode::AttachChild(SceneNodePtr child)
 
 void SceneNode::Draw(unsigned int shaderId, const glm::mat4 &matrix) const
 {
-	glm::mat4 currentMatrix = mTransformationMatrix * matrix;
+	glm::mat4 currentMatrix = matrix * mTransformationMatrix;
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderId, "transMat"), 1, GL_FALSE, glm::value_ptr(currentMatrix));
 
