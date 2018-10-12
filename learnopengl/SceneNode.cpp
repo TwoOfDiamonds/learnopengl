@@ -1,11 +1,13 @@
 #include "SceneNode.h"
 
 #include <iostream>
+#include <glm\gtc\type_ptr.hpp>
 
 SceneNode::SceneNode(std::unique_ptr<Geometry> geometry, std::shared_ptr<TGAFile> textureData) :
 	mpGeometry(std::move(geometry)),
 	mpTextureData(textureData),
-	mpChildren(std::make_unique<std::list<SceneNodePtr>>())
+	mpChildren(std::make_unique<std::list<SceneNodePtr>>()),
+	mTransformationMatrix(1.0f)
 {
 	if (mpGeometry != nullptr)
 	{
@@ -34,8 +36,12 @@ void SceneNode::AttachChild(SceneNodePtr child)
 	mpChildren->push_back(child);
 }
 
-void SceneNode::Draw(unsigned int shaderId) const
+void SceneNode::Draw(unsigned int shaderId, const glm::mat4 &matrix) const
 {
+	glm::mat4 currentMatrix = mTransformationMatrix * matrix;
+
+	glUniformMatrix4fv(glGetUniformLocation(shaderId, "transMat"), 1, GL_FALSE, glm::value_ptr(currentMatrix));
+
 	if (mpTextureData != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE0);
@@ -52,6 +58,6 @@ void SceneNode::Draw(unsigned int shaderId) const
 
 	for (std::list<SceneNodePtr>::const_iterator it = mpChildren->begin(); it != mpChildren->end(); it++)
 	{
-		(*it)->Draw(shaderId);
+		(*it)->Draw(shaderId, currentMatrix);
 	}
 }

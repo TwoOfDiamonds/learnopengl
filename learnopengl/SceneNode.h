@@ -3,6 +3,7 @@
 #include <glad\glad.h>
 #include <list>
 #include <memory>
+#include <glm\glm.hpp>
 
 #include "ObjFileParser.h"
 
@@ -23,15 +24,18 @@ public:
 	using SceneNodePtr = std::shared_ptr<SceneNode>;
 
 	void AttachChild(SceneNodePtr child);
-	void Draw(unsigned int shaderId) const;
+	void Draw(unsigned int shaderId, const glm::mat4 &matrix) const;
+	void SetTransformationMatrix(const glm::mat4 transformationMatrix) { mTransformationMatrix = transformationMatrix; }
 
 private:
 	std::unique_ptr<Geometry> mpGeometry = nullptr;
-	//abstractizeaza asta mai tarziu
+	//abstractizeaza asta mai tarziu din tgafile in random textura
 	std::shared_ptr<TGAFile> mpTextureData = nullptr;
 	std::unique_ptr<std::list<SceneNodePtr>> mpChildren = nullptr;
 
 	unsigned int VAO = 0;
 	unsigned int VBO = 0;
+
+	glm::mat4 mTransformationMatrix;
 };
 
