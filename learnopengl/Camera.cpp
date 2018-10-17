@@ -12,4 +12,3 @@ void Camera::Draw(unsigned int shaderId, const SceneNode &sceneRoot) const
 {
 	sceneRoot.Draw(shaderId, mProjectionMatrix);
 }
-

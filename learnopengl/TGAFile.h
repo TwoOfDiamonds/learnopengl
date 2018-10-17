@@ -7,6 +7,7 @@
 class TGAFile
 {
 public:
+	TGAFile(const TGAFile& otherTga);
 	TGAFile(std::string filename);
 	~TGAFile();
 

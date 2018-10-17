@@ -18,6 +18,8 @@ public:
 class SceneNode
 {
 public:
+	SceneNode(const SceneNode &otherSceneNode);
+	SceneNode(SceneNode &&otherSceneNode);
 	SceneNode(std::unique_ptr<Geometry> geometry = nullptr, std::shared_ptr<TGAFile> textureData = nullptr);
 	~SceneNode() = default;
 
@@ -26,6 +28,9 @@ public:
 	void AttachChild(SceneNodePtr child);
 	void Draw(unsigned int shaderId, const glm::mat4 &matrix) const;
 	void SetTransformationMatrix(const glm::mat4 transformationMatrix) { mTransformationMatrix = transformationMatrix; }
+
+	void Translate(const glm::vec3 &translationVector);
+	void Rotate(float angle, const glm::vec3& rotationVector);
 
 private:
 	std::unique_ptr<Geometry> mpGeometry = nullptr;
