@@ -24,7 +24,7 @@ public:
 	//std::vector<float> GetTheStuffFromTheFace() { return faceStuff; }
 
 private:
-	using vec3 = std::array<float, 3>;
+	using vec3 = glm::vec3;//std::array<float, 3>;
 	std::vector<vec3> vertices;
 	std::vector<vec3> texCoords;
 	std::vector<vec3> vertexNormals;

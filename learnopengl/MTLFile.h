@@ -13,7 +13,7 @@ public:
 
 	std::string GetName() { return mFilename; }
 	//std::shared_ptr<TGAFile> operator[](const std::string& materialName) { return mpTextureMap->at(materialName); }
-	std::shared_ptr<TGAFile> GetMaterial(const std::string& materialName) { return mpTextureMap->at(materialName); }
+	std::shared_ptr<TGAFile> GetMaterial(const std::string& materialName) { return materialName.empty() ? nullptr : mpTextureMap->at(materialName); }
 private:
 	std::string mFilename = "";
 

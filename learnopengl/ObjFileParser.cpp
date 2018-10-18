@@ -84,7 +84,7 @@ ObjFileParser::vec3 ObjFileParser::ParseVec3(const std::string & line, float def
 		i++;
 	}
 
-	for (; i < result.size(); i++)
+	for (; i < 3; i++)
 		result[i] = defaultValue;
 
 	return result;
@@ -92,8 +92,29 @@ ObjFileParser::vec3 ObjFileParser::ParseVec3(const std::string & line, float def
 
 void ObjFileParser::ParseFace(const std::string & line)
 {
+	if (mCurrentGeometry == nullptr)
+	{
+		mCurrentGeometry = std::make_unique<Geometry>();
+		mCurrentGeometry->groupName = "default";
+	}
+
 	std::vector<std::string> groups;
 	Split(line, ' ', groups);
+
+	glm::vec3 faceVertexPositions[3];
+	int faceVertexPositionsIndex = 0;
+
+	for (auto& group : groups)
+	{
+		std::vector<std::string> smallGroups;
+		Split(group, '/', smallGroups);
+
+		int vertexIndex = std::stoi(smallGroups[0]);
+		if (vertexIndex < 0)
+			vertexIndex = vertices.size() + vertexIndex;
+
+		faceVertexPositions[faceVertexPositionsIndex++] = vertices[vertexIndex];
+	}
 
 	for (auto& group : groups)
 	{
@@ -130,10 +151,26 @@ void ObjFileParser::ParseFace(const std::string & line)
 		mCurrentGeometry->allVertices.push_back(texCoords[textureCoordIndex][1]);
 		mCurrentGeometry->allVertices.push_back(texCoords[textureCoordIndex][2]);
 
-		mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][0]);
-		mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][1]);
-		mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][2]);
+		if (normalIndex != 0)
+		{
+			mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][0]);
+			mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][1]);
+			mCurrentGeometry->allVertices.push_back(vertexNormals[normalIndex][2]);
+		}
+		else
+		{
+			glm::vec3 a = faceVertexPositions[0] - faceVertexPositions[1];
+			glm::vec3 b = faceVertexPositions[2] - faceVertexPositions[1];
+
+			glm::vec3 normal = -glm::cross(a, b);
+
+			mCurrentGeometry->allVertices.push_back(normal.x);
+			mCurrentGeometry->allVertices.push_back(normal.y);
+			mCurrentGeometry->allVertices.push_back(normal.z);
+		}
 	}
+
+
 }
 
 void ObjFileParser::Split(const std::string &group, const char token, std::vector<std::string> &groups_out)

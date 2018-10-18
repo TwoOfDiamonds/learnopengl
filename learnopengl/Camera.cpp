@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
 
 
 Camera::Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &transformationMatrix) :
@@ -12,7 +13,12 @@ Camera::Camera(const glm::mat4 &projectionMatrix, const glm::mat4 &transformatio
 
 void Camera::Draw(unsigned int shaderId, const SceneNode &sceneRoot) const
 {
-	sceneRoot.Draw(shaderId, mFinalMatrix);
+	uint32_t viewMatrixUniformLocation = glGetUniformLocation(shaderId, "viewMatrix");
+	uint32_t projectionMatrixUniformLocation = glGetUniformLocation(shaderId, "projectionMatrix");
+	glUniformMatrix4fv(viewMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(mTransformationMatrix));
+	glUniformMatrix4fv(projectionMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(mProjectionMatrix));
+
+	sceneRoot.Draw(shaderId, glm::mat4(1.f));
 }
 
 void Camera::SetTransformationMatrix(const glm::mat4 &transformationMatrix)
