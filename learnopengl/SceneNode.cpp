@@ -8,7 +8,7 @@ SceneNode::SceneNode(const SceneNode & otherSceneNode) :
 	mpGeometry(otherSceneNode.mpGeometry != nullptr ? std::make_unique<Geometry>(*(otherSceneNode.mpGeometry)) : nullptr),
 	mpTextureData(otherSceneNode.mpTextureData != nullptr ? std::make_shared<TGAFile>(*(otherSceneNode.mpTextureData)) : nullptr),
 	mpChildren(otherSceneNode.mpChildren != nullptr ? std::make_unique<std::list<SceneNodePtr>>(*(otherSceneNode.mpChildren)) : nullptr),
-	mTransformationMatrix(otherSceneNode.mTransformationMatrix)
+	mTransformationMatrix(1.0f)
 {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
